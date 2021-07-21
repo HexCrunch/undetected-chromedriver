@@ -21,9 +21,8 @@ import selenium.webdriver.remote.webdriver
 from .options import ChromeOptions
 from .patcher import IS_POSIX, Patcher
 from .reactor import Reactor
-from .cdp import CDP
 
-__all__ = ("Chrome", "ChromeOptions", "Patcher", "Reactor", "CDP", "find_chrome_executable")
+__all__ = ("Chrome", "ChromeOptions", "Patcher", "Reactor", "find_chrome_executable")
 
 logger = logging.getLogger("uc")
 logger.setLevel(logging.getLogger().getEffectiveLevel())
@@ -83,6 +82,7 @@ class Chrome(selenium.webdriver.Chrome):
         delay=5,
         version_main=None,
         patcher_force_close=False,
+        keep_webdriver_file=False,
     ):
         """
         Creates a new instance of the chrome driver.
@@ -149,7 +149,7 @@ class Chrome(selenium.webdriver.Chrome):
             setting it is not recommended, unless you know the implications and think
             you might need it.
         """
-        patcher = Patcher(executable_path=executable_path, force=patcher_force_close, version_main=version_main)
+        patcher = Patcher(executable_path=executable_path, force=patcher_force_close, version_main=version_main, keep_webdriver_file=keep_webdriver_file)
         patcher.auto()
 
         if not options:
@@ -571,9 +571,7 @@ class Chrome(selenium.webdriver.Chrome):
         except Exception:  # noqa
             pass
 
-        if hasattr(self, 'keep_user_data_dir') \
-            and not self.keep_user_data_dir \
-                or self.keep_user_data_dir is False:
+        if not self.keep_user_data_dir or self.keep_user_data_dir is False:
             for _ in range(3):
                 try:
                     logger.debug("removing profile : %s" % self.user_data_dir)
@@ -584,13 +582,9 @@ class Chrome(selenium.webdriver.Chrome):
                     logger.debug(
                         "permission error. files are still in use/locked. retying..."
                     )
-                except (RuntimeError, OSError) as e:
-                    logger.debug(
-                        "%s retying..." % e
-                    )
                 else:
                     break
-                time.sleep(.25)
+                time.sleep(1)
 
     def __del__(self):
         logger.debug("Chrome.__del__")

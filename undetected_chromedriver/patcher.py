@@ -83,6 +83,10 @@ class Patcher(object):
         if force is True:
             self.force = force
 
+        if self.is_binary_patched():
+            # assumes already running AND patched
+            return True    
+        
         try:
             os.unlink(self.executable_path)
         except PermissionError:

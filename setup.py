@@ -39,7 +39,7 @@ setup(
         "requests",
         "websockets",
     ],
-    url="https://github.com/ultrafunkamsterdam/undetected-chromedriver",
+    url="https://github.com/HexCrunch/undetected-chromedriver",
     license="GPL-3.0",
     author="UltrafunkAmsterdam",
     author_email="info@blackhat-security.nl",
